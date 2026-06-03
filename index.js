@@ -90,10 +90,11 @@ class TileSystem {
 	getTile(x, y) {
 		return this.tiles[`${x},${y}`] || null;
 	}
-	saveTile(key, content, color) {
+	saveTile(key, content, color, writability) {
 		this.tiles[key] = {
 			content: content,
-			color: color || new Array(content.length).fill(0)
+			color: color || new Array(content.length).fill(0),
+			writability: writability === undefined ? null : writability
 		};
 	}
 }
@@ -195,7 +196,7 @@ class Client extends EventEmitter {
 				this.emit("tileUpdate", data.tiles);
 				for (const update in data.tiles) {
 					if (!data.tiles[update]) continue;
-					Tiles.saveTile(update, data.tiles[update].content, (data.tiles[update].properties || {}).color);
+					Tiles.saveTile(update, data.tiles[update].content, (data.tiles[update].properties || {}).color, (data.tiles[update].properties || {}).writability);
 				}
 				if (data.kind == "fetch") this.emit("fetch", data.tiles);
 			}
@@ -261,7 +262,7 @@ class Client extends EventEmitter {
 							const [tileUpdateY, tileUpdateX] = update.split(",").map(coord => parseInt(coord));
 							if (tileUpdateX !== tileX || tileUpdateY !== tileY) continue;
 							this.off("fetch", fn);
-							if (updates[update]) Tiles.saveTile(`${tileX},${tileY}`, updates[update].content, (updates[update].properties || {}).color);
+							if (updates[update]) Tiles.saveTile(`${tileX},${tileY}`, updates[update].content, (updates[update].properties || {}).color, (updates[update].properties || {}).writability);
 							resolve(Tiles.getTile(tileX, tileY));
 						}
 					}
