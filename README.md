@@ -28,7 +28,7 @@ bot.on("join", () => {
 });
 
 bot.on("open", () => {
-    bot.world.writeString("Welcome!", "#FF0000", 0, 0, 0, 0);
+    bot.world.writeString("Welcome!", "#FF0000", -1, 0, 0, 0, 0);
 });
 ```
 
@@ -416,7 +416,7 @@ const myTiles = new TileSystem();
 
 #### **Array TileSystem.wrapStringTo16x16(String inputString, Array color)**
 
-Wrap a string into a 16x16 grid (tile format).
+Wrap a string into a 16x8 grid (tile format).
 
 #### **Object TileSystem.getChar(Number x, Number y, Array tile)**
 

@@ -52,21 +52,21 @@ class TileSystem {
 		const result = [];
 		let index = 0;
 		if (!color) color = new Array(inputString.length).fill(0);
-		for (let x = 0; x < 8; x++) {
-			result[x] = [];
-			for (let y = 0; y < 16; y++) {
+		for (let row = 0; row < 8; row++) {
+			result[row] = [];
+			for (let col = 0; col < 16; col++) {
 				const colorIndex = index;
 				if (index < inputString.length)
-					result[x][y] = { char: inputString[index], color: color[colorIndex] };
+					result[row][col] = { char: inputString[index], color: color[colorIndex] };
 				else
-					result[x][y] = { char: ' ', color: null };
+					result[row][col] = { char: ' ', color: null };
 				index++;
 			}
 		}
 		return result;
 	}
-	getChar(x, y, tile) {
-		if (tile && tile[x] && tile[x][y]) return tile[x][y];
+	getChar(charX, charY, tile) {
+		if (tile && tile[charY] && tile[charY][charX]) return tile[charY][charX];
 		return null;
 	}
 	getTile(x, y) {
