@@ -113,7 +113,7 @@ class Client extends EventEmitter {
 				this.player.charX = charX;
 				this.player.charY = charY;
 			},
-			quota: new CharQuota(128, 1000)
+			quota: new CharQuota(512, 1000)
 		}
 
 		if (!options.world) options.world = '';
