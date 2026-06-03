@@ -52,7 +52,7 @@ class TileSystem {
 		const result = [];
 		let index = 0;
 		if (!color) color = new Array(inputString.length).fill(0);
-		for (let x = 0; x < 16; x++) {
+		for (let x = 0; x < 8; x++) {
 			result[x] = [];
 			for (let y = 0; y < 16; y++) {
 				const colorIndex = index;
@@ -112,8 +112,11 @@ class Client extends EventEmitter {
 
 		const parameters = [{
 			headers: {
-				Cookie: typeof options.token == "undefined" ? '' : "token=" + options.token
-			}
+				'Origin': options.origin,
+				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+				'Cookie': typeof options.token == "undefined" ? '' : "token=" + options.token
+			},
+			origin: options.origin
 		}];
 
 		if (isBrowser) parameters.unshift(null);
@@ -176,7 +179,7 @@ class Client extends EventEmitter {
 				this.emit("tileUpdate", data.tiles);
 				for (const update in data.tiles) {
 					if (!data.tiles[update]) continue;
-					Tiles.saveTile(update, data.tiles[update].content, data.tiles[update].properties.color);
+					Tiles.saveTile(update, data.tiles[update].content, (data.tiles[update].properties || {}).color);
 				}
 				if (data.kind == "fetch") this.emit("fetch", data.tiles);
 			}
@@ -233,7 +236,7 @@ class Client extends EventEmitter {
 							const [tileUpdateY, tileUpdateX] = update.split(",").map(coord => parseInt(coord));
 							if (tileUpdateX !== tileX || tileUpdateY !== tileY) continue;
 							this.off("fetch", fn);
-							Tiles.saveTile(`${tileX},${tileY}`, updates[update].content, (updates[update].properties || {}).color);
+							if (updates[update]) if (updates[update]) if (updates[update]) Tiles.saveTile(`${tileX},${tileY}`, updates[update].content, (updates[update].properties || {}).color);
 							resolve(Tiles.getTile(tileX, tileY));
 						}
 					}
@@ -267,9 +270,8 @@ class Client extends EventEmitter {
 						const updates = args[0];
 						let fetchedChunks = [];
 						for (const update in updates) {
-							const [updateMinY, updateMinX, updateMaxY, updateMaxX] = update.split(",").map(coord => parseInt(coord));
-							if (updateMinX >= minX && updateMinY >= minY && updateMaxX <= maxX && updateMaxY <= maxY) {
-								fetchedChunks.push(updates[update]);
+							const [updateY, updateX] = update.split(",").map(coord => parseInt(coord)); if (updateX >= minX && updateY >= minY && updateX <= maxX && updateY <= maxY) {
+								if (updates[update]) if (updates[update]) if (updates[update]) fetchedChunks.push(updates[update]);
 							}
 						}
 						if (fetchedChunks.length > 0) {
@@ -297,8 +299,8 @@ class Client extends EventEmitter {
 				}
 				return true;
 			},
-			writeChar: (char = ' ', color, tileX, tileY, charX, charY) => {
-				const editItem = this.world.createEditItem(char, color, tileX, tileY, charX, charY);
+			writeChar: (char = ' ', color, bgColor, tileX, tileY, charX, charY) => {
+				const editItem = this.world.createEditItem(char, color, bgColor, tileX, tileY, charX, charY);
 				this.net.writeBuffer.push(editItem);
 				return true;
 			},
@@ -343,18 +345,7 @@ class Client extends EventEmitter {
 				}
 				return true;
 			},
-			createEditItem: (char = ' ', color, tileX, tileY, charX, charY) => {
-				return [
-					tileY,
-					tileX,
-					charY,
-					charX,
-					Date.now(),
-					char,
-					this.net.sequence++,
-					color || 0
-				];
-			},
+			createEditItem: (char = ' ', color, bgColor, tileX, tileY, charX, charY) => { return [tileY, tileX, charY, charX, Date.now(), char, this.net.sequence++, color || 0, bgColor === undefined ? -1 : bgColor]; },
 			editMessage: (editItems) => {
 				const MAX_EDITS_PER_MESSAGE = this.player.quota.rate;
 				let messages = [];
