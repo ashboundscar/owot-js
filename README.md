@@ -88,13 +88,8 @@ Player information object:
 |----------|------|-------------|
 | `nickname` | string | Player nickname |
 | `chatColor` | number | Chat color |
-| `color` | number | Default tile color |
 | `id` | number | Player ID |
 | `channel` | string | Current channel |
-| `tileX` | number | Current tile X |
-| `tileY` | number | Current tile Y |
-| `charX` | number | Current character X within tile |
-| `charY` | number | Current character Y within tile |
 | `quota` | CharQuota | Rate quota manager |
 
 ### Client.net
@@ -349,10 +344,6 @@ Convert screen coordinates to [tileX, tileY, charX, charY].
 #### **Array Client.util.convertPosition(Number tileX, Number tileY, Number charX, Number charY)**
 
 Convert tile/char coordinates to flat [positionX, positionY].
-
-#### **Array Client.util.getCursorPosition()**
-
-Get current cursor position (browser only).
 
 #### **Client.util.log(String msg)**
 

@@ -103,16 +103,6 @@ class Client extends EventEmitter {
 			chatColor: 0,
 			id: null,
 			channel: null,
-			tileX: 0,
-			tileY: 0,
-			charX: 0,
-			charY: 0,
-			setPosition: (tileX, tileY, charX, charY) => {
-				this.player.tileX = tileX;
-				this.player.tileY = tileY;
-				this.player.charX = charX;
-				this.player.charY = charY;
-			},
 			quota: new CharQuota(512, 1000)
 		}
 
@@ -473,9 +463,6 @@ class Client extends EventEmitter {
 				return [tileX, tileY, charX, charY];
 			},
 			convertPosition: (tileX, tileY, charX, charY) => [tileX * 16 + charX, tileY * 8 + charY],
-			getCursorPosition: () => {
-				return [this.player.tileX * 16 + this.player.charX, this.player.tileY * 8 + this.player.charY];
-			},
 			log: (msg) => {
 				if (!this.options.log) return;
 				msg = "[OWOT.js] " + msg;
