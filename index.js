@@ -80,15 +80,21 @@ class TileSystem {
 		return result;
 	}
 	getChar(charX, charY, tile) {
-		if (tile && tile[charY] && tile[charY][charX]) return tile[charY][charX];
-		return null;
+		if (!tile || typeof tile.content !== 'string') return null;
+		const index = (charY * 16) + charX;
+		return {
+			char: tile.content[index] || ' ',
+			color: (tile.color && tile.color[index] !== undefined) ? tile.color[index] : null
+		};
 	}
 	getTile(x, y) {
 		return this.tiles[`${x},${y}`] || null;
 	}
 	saveTile(key, content, color) {
-		const tile = this.wrapStringTo16x16(content, color);
-		this.tiles[key] = tile;
+		this.tiles[key] = {
+			content: content,
+			color: color || new Array(content.length).fill(0)
+		};
 	}
 }
 
