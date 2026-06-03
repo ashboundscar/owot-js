@@ -181,9 +181,16 @@ class Client extends EventEmitter {
 			this.util.log(`WebSocket connected!`);
 			this.emit("open");
 		}
+		this.net.ws.onerror = (err) => {
+			this.util.log(`WebSocket error: ${err.message}`);
+			this.emit("error", err);
+		}
 		this.net.ws.onmessage = (msg) => {
 			let data = JSON.parse(msg.data);
-			if (data.kind == "chat") this.emit("chat", data);
+			if (data.kind == "chat") {
+				if (data.delete) this.emit("chatdelete", data);
+				else this.emit("chat", data);
+			}
 			if (data.kind == "tileUpdate" || data.kind == "fetch") {
 				this.emit("tileUpdate", data.tiles);
 				for (const update in data.tiles) {
@@ -197,6 +204,15 @@ class Client extends EventEmitter {
 				this.player.channel = data.channel;
 				this.emit("join", data.id, data.channel);
 			}
+			if (data.kind == "user_count") {
+				this.world.userCount = data.count;
+				this.emit("user_count", data.count);
+			}
+			if (data.kind == "stats") this.emit("stats", data);
+			if (data.kind == "cmd") this.emit("cmd", data);
+			if (data.kind == "cursor") this.emit("cursor", data);
+			if (data.kind == "chathistory") this.emit("chathistory", data);
+
 			if (data.accepted || data.rejected) this.emit("writeResponse", data);
 		}
 		this.net.ws.onclose = () => {
