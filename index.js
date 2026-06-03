@@ -11,6 +11,20 @@ if (isBrowser) {
 	Chalk = require("chalk");
 }
 
+const PALETTE = [
+	"#000000", "#000001", "#000080", "#0000FF", "#005080", "#008000", "#008080", "#0080FF",
+	"#00AAFF", "#00CCC0", "#00D900", "#00FF00", "#00FFA2", "#00FFFF", "#123ABC", "#314159",
+	"#404040", "#4433BB", "#671EF0", "#6E99CA", "#7FFF00", "#800000", "#800080", "#8000FF",
+	"#804000", "#808000", "#808080", "#8080FF", "#87CEEB", "#902F39", "#BADD1E", "#C0C0C0",
+	"#C0FFEE", "#D00000", "#FA531F", "#FACE98", "#FF0000", "#FF0080", "#FF00FF", "#FF8000",
+	"#FF8080", "#FF93C3", "#FFC0CB", "#FFD700", "#FFFF00", "#FFFFFF"
+].map(hex => {
+	const r = parseInt(hex.slice(1, 3), 16);
+	const g = parseInt(hex.slice(3, 5), 16);
+	const b = parseInt(hex.slice(5, 7), 16);
+	return { r, g, b, int: b | (g << 8) | (r << 16) };
+});
+
 class CharQuota {
 	constructor(rate, time, infinite) {
 		this.lastCheck = Date.now();
@@ -106,6 +120,7 @@ class Client extends EventEmitter {
 		if (!options.color) options.color = '0';
 		if (!options.log) options.log = true;
 		if (!options.origin) options.origin = "https://ourworldoftext.com/";
+		if (options.forcePalette === undefined) options.forcePalette = true;
 		options.ws = options.ws || `wss://ourworldoftext.com/${options.world ? options.world + '/' : ''}ws/${options.hide ? '?hide=1' : ''}`;
 
 		this.options = options;
@@ -298,7 +313,9 @@ class Client extends EventEmitter {
 				return true;
 			},
 			writeChar: (char = ' ', color, bgColor, tileX, tileY, charX, charY) => {
-				const editItem = this.world.createEditItem(char, color, bgColor, tileX, tileY, charX, charY);
+				const processedColor = this.options.forcePalette ? this.util.getNearestColor(color) : (typeof color !== 'number' ? this.util.hexToInt(color) : color);
+				const processedBgColor = (bgColor === undefined || bgColor === -1) ? -1 : (this.options.forcePalette ? this.util.getNearestColor(bgColor) : (typeof bgColor !== 'number' ? this.util.hexToInt(bgColor) : bgColor));
+				const editItem = this.world.createEditItem(char, processedColor, processedBgColor, tileX, tileY, charX, charY);
 				this.net.writeBuffer.push(editItem);
 				return true;
 			},
@@ -408,6 +425,24 @@ class Client extends EventEmitter {
 			},
 		}
 		this.util = {
+			getNearestColor: (color) => {
+				if (typeof color !== 'number') color = this.util.hexToInt(color);
+				const r = (color >> 16) & 0xFF;
+				const g = (color >> 8) & 0xFF;
+				const b = color & 0xFF;
+
+				let minDistance = Infinity;
+				let nearest = PALETTE[0].int;
+
+				for (const p of PALETTE) {
+					const dist = Math.pow(r - p.r, 2) + Math.pow(g - p.g, 2) + Math.pow(b - p.b, 2);
+					if (dist < minDistance) {
+						minDistance = dist;
+						nearest = p.int;
+					}
+				}
+				return nearest;
+			},
 			chunkifyString: (message, quota) => {
 				let chunks = [];
 				for (let i = 0, len = message.length; i < len; i += quota) {
