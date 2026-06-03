@@ -61,6 +61,7 @@ bot.on("open", () => {
 | `color` | string | `'0'` | Default color |
 | `log` | boolean | `true` | Enable logging |
 | `hide` | boolean | `false` | Hide from online counter |
+| `agent` | object | `undefined` | Proxy agent (e.g. HttpsProxyAgent) |
 
 ## Module Exports
 

@@ -112,11 +112,9 @@ class Client extends EventEmitter {
 
 		const parameters = [{
 			headers: {
-				'Origin': options.origin,
-				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
 				'Cookie': typeof options.token == "undefined" ? '' : "token=" + options.token
 			},
-			origin: options.origin
+			agent: options.agent
 		}];
 
 		if (isBrowser) parameters.unshift(null);
@@ -236,7 +234,7 @@ class Client extends EventEmitter {
 							const [tileUpdateY, tileUpdateX] = update.split(",").map(coord => parseInt(coord));
 							if (tileUpdateX !== tileX || tileUpdateY !== tileY) continue;
 							this.off("fetch", fn);
-							if (updates[update]) if (updates[update]) if (updates[update]) Tiles.saveTile(`${tileX},${tileY}`, updates[update].content, (updates[update].properties || {}).color);
+							if (updates[update]) Tiles.saveTile(`${tileX},${tileY}`, updates[update].content, (updates[update].properties || {}).color);
 							resolve(Tiles.getTile(tileX, tileY));
 						}
 					}
@@ -271,7 +269,7 @@ class Client extends EventEmitter {
 						let fetchedChunks = [];
 						for (const update in updates) {
 							const [updateY, updateX] = update.split(",").map(coord => parseInt(coord)); if (updateX >= minX && updateY >= minY && updateX <= maxX && updateY <= maxY) {
-								if (updates[update]) if (updates[update]) if (updates[update]) fetchedChunks.push(updates[update]);
+								if (updates[update]) fetchedChunks.push(updates[update]);
 							}
 						}
 						if (fetchedChunks.length > 0) {
@@ -304,27 +302,7 @@ class Client extends EventEmitter {
 				this.net.writeBuffer.push(editItem);
 				return true;
 			},
-			/**
-			* Retrieves the character at the specified coordinates (tileX, tileY, charX, charY) from the world.
-			* @param {number} tileX - The x-coordinate of the tile.
-			* @param {number} tileY - The y-coordinate of the tile.
-			* @param {number} charX - The x-coordinate of the character within the tile.
-			* @param {number} charY - The y-coordinate of the character within the tile.
-			* @returns {Promise<string>} - A promise that resolves to the character at the specified coordinates.
-			*/
-			getChar: async (tileX, tileY, charX, charY) => {
-				if (typeof charX === 'undefined' || typeof charY === 'undefined') {
-					[tileX, tileY, charX, charY] = this.util.convertXY(tileX, tileY);
-				}
-
-				charX = Math.abs(charX);
-				charY = Math.abs(charY);
-
-				const tile = await this.world.getTile(tileX, tileY);
-
-				return Tiles.getChar(charX, charY, tile);
-			},
-			writeString: async (str = ' ', color, tileX, tileY, charX, charY) => {
+			writeString: async (str = ' ', color, bgColor, tileX, tileY, charX, charY) => {
 				if (this.net.ws.readyState !== WebSocket.OPEN) return false;
 				if (typeof charX === 'undefined' || typeof charY === 'undefined') {
 					[tileX, tileY, charX, charY] = this.util.convertXY(tileX, tileY);
@@ -336,7 +314,7 @@ class Client extends EventEmitter {
 					if (!this.player.quota.canSpend(1)) {
 						await this.player.quota.waitUntilRestore();
 					}
-					this.world.writeChar(char, color, newTileX, newTileY, newCharX, newCharY);
+					this.world.writeChar(char, color, bgColor, newTileX, newTileY, newCharX, newCharY);
 					charX++;
 					if (charX >= 16) {
 						charX = 0;
