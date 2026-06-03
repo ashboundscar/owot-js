@@ -15,12 +15,12 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://gitlab.com/scar17off/owot-js.git"
+		"url": "git+https://gitlab.com/ashboundscar/owot-js.git"
 	},
 	"bugs": {
-		"url": "https://gitlab.com/scar17off/owot-js/issues"
+		"url": "https://gitlab.com/ashboundscar/owot-js/issues"
 	},
-	"homepage": "https://gitlab.com/scar17off/owot-js#readme",
+	"homepage": "https://gitlab.com/ashboundscar/owot-js#readme",
 	"scripts": {},
 	"license": "MIT"
 }
