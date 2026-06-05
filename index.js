@@ -4,6 +4,23 @@ let EventEmitter, WebSocket, Chalk;
 if (isBrowser) {
 	!function (e) { "use strict"; function t() { } function n(e, t) { for (var n = e.length; n--;)if (e[n].listener === t) return n; return -1 } function r(e) { return function () { return this[e].apply(this, arguments) } } function i(e) { return "function" == typeof e || e instanceof RegExp || !(!e || "object" != typeof e) && i(e.listener) } var s = t.prototype, o = e.EventEmitter; s.getListeners = function (e) { var t, n, r = this._getEvents(); if (e instanceof RegExp) { t = {}; for (n in r) r.hasOwnProperty(n) && e.test(n) && (t[n] = r[n]) } else t = r[e] || (r[e] = []); return t }, s.flattenListeners = function (e) { var t, n = []; for (t = 0; t < e.length; t += 1)n.push(e[t].listener); return n }, s.getListenersAsObject = function (e) { var t, n = this.getListeners(e); return n instanceof Array && (t = {}, t[e] = n), t || n }, s.addListener = function (e, t) { if (!i(t)) throw new TypeError("listener must be a function"); var r, s = this.getListenersAsObject(e), o = "object" == typeof t; for (r in s) s.hasOwnProperty(r) && -1 === n(s[r], t) && s[r].push(o ? t : { listener: t, once: !1 }); return this }, s.on = r("addListener"), s.addOnceListener = function (e, t) { return this.addListener(e, { listener: t, once: !0 }) }, s.once = r("addOnceListener"), s.defineEvent = function (e) { return this.getListeners(e), this }, s.defineEvents = function (e) { for (var t = 0; t < e.length; t += 1)this.defineEvent(e[t]); return this }, s.removeListener = function (e, t) { var r, i, s = this.getListenersAsObject(e); for (i in s) s.hasOwnProperty(i) && -1 !== (r = n(s[i], t)) && s[i].splice(r, 1); return this }, s.off = r("removeListener"), s.addListeners = function (e, t) { return this.manipulateListeners(!1, e, t) }, s.removeListeners = function (e, t) { return this.manipulateListeners(!0, e, t) }, s.manipulateListeners = function (e, t, n) { var r, i, s = e ? this.removeListener : this.addListener, o = e ? this.removeListeners : this.addListeners; if ("object" != typeof t || t instanceof RegExp) s.call(this, t, n); else for (r in t) t.hasOwnProperty(r) && (i = t[r]) && ("function" == typeof i ? s.call(this, r, i) : o.call(this, r, i)); return this }, s.addEventWrapper = function (e) { var t = this; return function () { return t[e].apply(t, arguments) } }, t.extendEventEmitter = function (e, n) { var r = new t; for (var i in n) n.hasOwnProperty(i) && (r[i] = n[i]); e.prototype = r }, e.EventEmitter = t }(this);
 	EventEmitter = this.EventEmitter;
+	if (!EventEmitter.prototype._getEvents) {
+		EventEmitter.prototype._getEvents = function () {
+			return this._events || (this._events = {});
+		};
+	}
+	if (!EventEmitter.prototype.emit) {
+		EventEmitter.prototype.emit = function (e) {
+			var t, n, r, i = this.getListenersAsObject(e);
+			for (n in i)
+				if (i.hasOwnProperty(n))
+					for (t = i[n].length; t--;)
+						r = i[n][t],
+						r.once === !0 && this.removeListener(e, r.listener),
+						r.listener.apply(this, Array.prototype.slice.call(arguments, 1));
+			return this
+		};
+	}
 	WebSocket = window.WebSocket;
 } else {
 	EventEmitter = require("events");
