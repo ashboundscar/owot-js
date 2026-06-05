@@ -62,7 +62,7 @@ class TileSystem {
 	constructor() {
 		this.tiles = {}
 	}
-	wrapStringTo16x16(inputString, color) {
+	wrapStringTo16x8(inputString, color) {
 		const result = [];
 		let index = 0;
 		if (!color) color = new Array(inputString.length).fill(0);

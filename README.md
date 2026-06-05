@@ -405,7 +405,7 @@ const myTiles = new TileSystem();
 
 ### Methods
 
-#### **Array TileSystem.wrapStringTo16x16(String inputString, Array color)**
+#### **Array TileSystem.wrapStringTo16x8(String inputString, Array color)**
 
 Wrap a string into a 16x8 grid (tile format).
 
