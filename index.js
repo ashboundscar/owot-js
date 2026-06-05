@@ -106,8 +106,8 @@ class Client extends EventEmitter {
 		super();
 
 		this.player = {
-			nickname: '',
-			chatColor: 0,
+			nickname: options.nickname || '',
+			chatColor: options.chatColor || '#000000',
 			id: null,
 			channel: null,
 			quota: new CharQuota(512, 1000)
@@ -228,7 +228,7 @@ class Client extends EventEmitter {
 					kind: "chat",
 					message: message,
 					location: global ? "global" : "page",
-					color: 0,
+					color: this.player.chatColor,
 					nickname: this.player.nickname
 				}));
 				return true;
